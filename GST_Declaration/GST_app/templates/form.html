@@ -1,0 +1,67 @@
+<!-- app_name/templates/form.html -->
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>GST Form</title>
+</head>
+<body>
+    <h1>GST Declaration Form</h1>
+    
+    <form id="gstForm" method="POST" action="{% url 'gst_form'}">
+        {% csrf_token %}
+
+        <label for="gst_number">GST Number:</label>
+        <input type="text" id="gst_number" name="gst_number" required><br>
+
+        <label for="date_of_filing">Date of Filing:</label>
+        <input type="date" id="date_of_filing" name="date_of_filing" required><br>
+
+        <label for="mobile_number">Mobile Number:</label>
+        <input type="text" id="mobile_number" name="mobile_number" required><br>
+
+        <label for="address">Address:</label>
+        <textarea id="address" name="address" required></textarea><br>
+
+        <label for="pan_number">PAN Number:</label>
+        <input type="text" id="pan_number" name="pan_number" required><br>
+
+        <button type="submit">Submit</button>
+    </form>
+
+    <p id="responseMessage"></p>
+
+    <script>
+        document.getElementById("gstForm").addEventListener("submit", function(event) {
+            event.preventDefault();
+
+            let formData = {
+                gst_number: document.getElementById("gst_number").value,
+                date_of_filing: document.getElementById("date_of_filing").value,
+                mobile_number: document.getElementById("mobile_number").value,
+                address: document.getElementById("address").value,
+                pan_number: document.getElementById("pan_number").value
+            };
+
+            fetch("/api/submit-gst/", {
+                method: "POST",
+                headers: {
+                    "Content-Type": "application/json",
+                    "X-CSRFToken": document.querySelector("[name=csrfmiddlewaretoken]").value
+                },
+                body: JSON.stringify(formData)
+            })
+            .then(response => response.json())
+            .then(data => {
+                document.getElementById("responseMessage").innerText = data.message;
+                document.getElementById("gstForm").reset();
+            })
+            .catch(error => {
+                console.error("Error:", error);
+                document.getElementById("responseMessage").innerText = "An error occurred.";
+            });
+        });
+    </script>
+</body>
+</html>
